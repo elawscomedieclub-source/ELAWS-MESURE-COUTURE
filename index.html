@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#173b32">
+<meta name="description" content="ELAWS MESURE COUTURE : clients, mesures, commandes, paiements et coupe.">
+<title>ELAWS MESURE COUTURE V13</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<style>
+:root{--vert:#173b32;--or:#d8ae59;--fond:#f3f5f3;--blanc:#fff;--rouge:#b42318;--gris:#667085}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:var(--fond);color:#202923}
+header{background:var(--vert);color:white;padding:18px 14px;text-align:center}
+header h1{margin:0;font-size:22px}
+header p{margin:7px 0 0;font-size:13px}
+.install{background:var(--or);color:#202923;border:0;border-radius:9px;padding:11px 15px;font-weight:bold;margin-top:12px}
+nav{background:#fff;padding:10px;display:grid;grid-template-columns:1fr 1fr;gap:7px;box-shadow:0 2px 6px #0001}
+nav button{background:#edf2ef;border:0;padding:12px 5px;border-radius:8px;color:var(--vert);font-weight:bold}
+main{padding:12px;max-width:950px;margin:auto}
+section{display:none}
+section.active{display:block}
+h2{color:var(--vert);font-size:21px}
+h3{color:var(--vert);font-size:16px}
+.card{background:#fff;padding:14px;border-radius:12px;margin:10px 0;box-shadow:0 2px 7px #0000000b}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.stat{background:white;padding:14px;border-radius:10px;border-left:4px solid var(--or)}
+.stat strong{font-size:21px;display:block;margin-top:7px}
+label{display:block;font-size:13px;font-weight:bold;margin:11px 0 5px}
+input,select,textarea{width:100%;padding:11px;border:1px solid #ccd5cf;border-radius:7px;font:inherit;background:white}
+textarea{min-height:75px;resize:vertical}
+button{cursor:pointer}
+.btn{border:0;border-radius:8px;padding:11px 13px;background:var(--vert);color:white;font-weight:bold;margin:5px 3px 5px 0}
+.btn.or{background:var(--or);color:#202923}
+.btn.red{background:var(--rouge)}
+.btn.gray{background:#e8ece9;color:#26352d}
+.btn.small{font-size:12px;padding:8px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.menuTitle{width:100%;text-align:left;background:#e9efeb;border:0;border-radius:8px;padding:13px;margin-top:8px;font-weight:bold;color:var(--vert)}
+.menuLinks{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:5px 0}
+.menuLinks button{padding:10px;background:white;border:1px solid #dce4de;border-radius:7px}
+.article{border:1px solid #dce4de;padding:12px;border-radius:9px;margin:9px 0}
+.article h4{margin:3px 0 8px}
+.badge{display:inline-block;background:#e8eee9;border-radius:20px;padding:5px 8px;font-size:12px;margin:3px 0}
+.badge.red{background:#ffebe9;color:#a1261b}
+.muted{color:var(--gris);font-size:13px}
+hr{border:0;border-top:1px solid #e5e9e6;margin:13px 0}
+.empty{text-align:center;color:var(--gris);padding:20px}
+footer{text-align:center;padding:20px;color:var(--gris);font-size:12px}
+#installStatus{font-size:13px;color:#e7f1e9;margin-top:7px}
+@media(min-width:650px){nav{grid-template-columns:repeat(4,1fr)}.stats{grid-template-columns:repeat(4,1fr)}main{padding:20px}.menuLinks{grid-template-columns:repeat(3,1fr)}}
+@media print{header,nav,footer,.no-print{display:none!important}body{background:white}main{max-width:none;padding:0}.print-mode #printZone{display:block!important}.print-mode main>*:not(#printZone){display:none!important}#printZone{display:block!important}}
+#printZone{display:none}
+</style>
+</head>
+<body>
+
+<header>
+<h1>✂️ ELAWS MESURE COUTURE</h1>
+<p>Version 13 — Atelier de couture</p>
+<button id="installBtn" class="install" onclick="installerApplication()">📲 Installer COUTURE</button>
+<div id="installStatus">Application prête à configurer</div>
+</header>
+
+<nav class="no-print">
+<button onclick="ouvrir('accueil')">🏠 Accueil</button>
+<button onclick="ouvrir('clients')">👥 Clients</button>
+<button onclick="ouvrir('commande')">📦 Commandes</button>
+<button onclick="ouvrir('mesures')">📐 Mesures</button>
+<button onclick="ouvrir('coupe')">✂️ Fiches de coupe</button>
+<button onclick="ouvrir('finances')">💰 Finances</button>
+<button onclick="ouvrir('historique')">📋 Historique</button>
+<button onclick="ouvrir('outils')">⚙️ Sauvegarde</button>
+</nav>
+
+<main>
+<section id="accueil" class="active">
+<h2>🏠 Tableau de bord</h2>
+<div class="stats">
+<div class="stat">Clients<strong id="sClients">0</strong></div>
+<div class="stat">Commandes<strong id="sCommandes">0</strong></div>
+<div class="stat">Montant encaissé<strong id="sEncaisse">0</strong></div>
+<div class="stat">Reste à payer<strong id="sReste">0</strong></div>
+</div>
+<div class="card">
+<h3>⚡ Actions rapides</h3>
+<button class="btn" onclick="nouvelleCommande()">➕ Nouvelle commande</button>
+<button class="btn or" onclick="nouveauClient()">👤 Ajouter un client</button>
+<button class="btn gray" onclick="ouvrir('coupe')">✂️ Préparer une coupe</button>
+</div>
+<div class="card">
+<h3>📅 Livraisons à surveiller</h3>
+<div id="alertes"></div>
+</div>
+<div class="card">
+<h3>📦 Dernières commandes</h3>
+<div id="dernieresCommandes"></div>
+</div>
+</section>
+
+<section id="clients">
+<h2>👥 Gestion des clients</h2>
+<button class="btn" onclick="nouveauClient()">➕ Nouveau client</button>
+<input id="rechercheClient" placeholder="Rechercher un nom ou téléphone..." oninput="afficherClients()">
+<div id="listeClients"></div>
+</section>
+
+<section id="clientForm">
+<h2 id="titreClient">Ajouter un client</h2>
+<input type="hidden" id="clientId">
+<label>Nom complet *</label><input id="clientNom" required>
+<div class="row">
+<div><label>Téléphone</label><input id="clientTel" type="tel"></div>
+<div><label>Email</label><input id="clientEmail" type="email"></div>
+</div>
+<label>Adresse</label><input id="clientAdresse">
+<label>Photo du client (facultatif)</label><input id="clientPhoto" type="file" accept="image/*">
+<label>Notes</label><textarea id="clientNotes"></textarea>
+<button class="btn" onclick="enregistrerClient()">💾 Enregistrer le client</button>
+<button class="btn gray" onclick="ouvrir('clients')">Annuler</button>
+<div id="profilClient"></div>
+</section>
+
+<section id="mesures">
+<h2>📐 Mesures du client</h2>
+<label>Choisir un client</label><select id="mesureClient" onchange="chargerMesures()"></select>
+<label>Type d'habit</label><select id="mesureHabit" onchange="chargerMesures()"></select>
+<div class="card">
+<p class="muted">Les mesures enregistrées restent associées au client et peuvent servir aux prochaines commandes.</p>
+<div id="champsMesures"></div>
+<button class="btn" onclick="enregistrerMesures()">💾 Enregistrer les mesures</button>
+</div>
+<div class="card"><h3>Historique des mesures</h3><div id="historiqueMesures"></div></div>
+</section>
+
+<section id="commande">
+<h2 id="titreCommande">📦 Nouvelle commande</h2>
+<input type="hidden" id="commandeId">
+<label>Client *</label><select id="commandeClient" onchange="selectionnerClientCommande()"></select>
+<label>Nom du client (si non enregistré)</label><input id="commandeNom" placeholder="Nom complet">
+<label>Téléphone</label><input id="commandeTel" type="tel">
+<div class="row">
+<div><label>Date de commande</label><input id="dateCommande" type="date"></div>
+<div><label>Date de livraison</label><input id="dateLivraison" type="date"></div>
+</div>
+<label>Statut</label>
+<select id="commandeStatut">
+<option>En cours</option><option>Coupe</option><option>Confection</option><option>Finition</option><option>Prêt</option><option>Livré</option><option>Annulé</option>
+</select>
+<label>Notes de confection</label><textarea id="commandeNotes" placeholder="Instructions pour l'atelier..."></textarea>
+
+<div class="card">
+<h3>👕 Articles de la commande</h3>
+<div id="listeArticlesTemp"></div>
+<button class="btn or" onclick="editerArticle(-1)">➕ Ajouter un habit</button>
+</div>
+
+<div id="editeurArticle" class="card" style="display:none">
+<h3 id="titreArticle">Article</h3>
+<label>Type d'habit</label><select id="aType" onchange="afficherChampsArticle()"></select>
+<label>Description / modèle</label><input id="aDescription" placeholder="Ex. pantalon classique">
+<div class="row">
+<div><label>Genre</label><select id="aGenre"><option>Homme</option><option>Femme</option><option>Enfant</option></select></div>
+<div><label>Taille</label><select id="aTaille"><option>Sur mesure</option><option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option><option>3XL</option><option>4XL</option></select></div>
+</div>
+<div class="row">
+<div><label>Quantité</label><input id="aQuantite" type="number" min="1" value="1"></div>
+<div><label>Prix unitaire</label><input id="aPrix" type="number" min="0" value="0"></div>
+</div>
+<div class="row">
+<div><label>Tissu</label><input id="aTissu" placeholder="Ex. coton"></div>
+<div><label>Couleur</label><input id="aCouleur"></div>
+</div>
+<h3>📏 Mesures du vêtement (cm)</h3>
+<div id="champsArticle"></div>
+<h3>🧵 Estimation du tissu</h3>
+<div class="row">
+<div><label>Largeur du tissu (cm)</label><input id="aLaize" type="number" value="150" min="1"></div>
+<div><label>Prix du mètre</label><input id="aPrixTissu" type="number" value="0" min="0"></div>
+</div>
+<label>Calcul du tissu</label>
+<select id="aModeTissu"><option value="auto">Estimation automatique</option><option value="manuel">Saisie manuelle</option></select>
+<label>Mètres par pièce (mode manuel)</label><input id="aTissuManuel" type="number" value="0" min="0" step="0.1">
+<div class="row">
+<div><label>Marge couture (cm)</label><input id="aMarge" type="number" value="1.5" step="0.5"></div>
+<div><label>Marge ourlet (cm)</label><input id="aOurlet" type="number" value="3" step="0.5"></div>
+</div>
+<label>Notes de coupe</label><textarea id="aNotesCoupe"></textarea>
+<button class="btn" onclick="sauverArticleTemp()">✅ Enregistrer l'article</button>
+<button class="btn gray" onclick="annulerEditionArticle()">Annuler</button>
+</div>
+
+<div class="card">
+<h3>💰 Paiement</h3>
+<div class="row">
+<div><label>Avance déjà reçue</label><input id="commandeAvance" type="number" value="0" min="0"></div>
+<div><label>Inclure le tissu dans le prix</label><select id="inclureTissu"><option value="non">Non</option><option value="oui">Oui</option></select></div>
+</div>
+<label>Notes générales</label><textarea id="commandeNotesGenerales"></textarea>
+<div id="resumeCommande"></div>
+<button class="btn" onclick="enregistrerCommande()">💾 Enregistrer la commande</button>
+<button class="btn gray" onclick="annulerCommande()">Annuler</button>
+</div>
+</section>
+
+<section id="coupe">
+<h2>✂️ Fiches de coupe</h2>
+<label>Choisir une commande</label><select id="coupeCommande"></select>
+<label>Article</label><select id="coupeArticle"></select>
+<button class="btn" onclick="genererFicheCoupe()">📄 Préparer la fiche de coupe</button>
+<div id="ficheCoupe"></div>
+</section>
+
+<section id="finances">
+<h2>💰 Finances et paiements</h2>
+<div class="stats">
+<div class="stat">Chiffre commandé<strong id="fTotal">0</strong></div>
+<div class="stat">Encaissé<strong id="fEncaisse">0</strong></div>
+<div class="stat">Reste dû<strong id="fReste">0</strong></div>
+<div class="stat">Commandes impayées<strong id="fImpayees">0</strong></div>
+</div>
+<div class="card">
+<h3>Enregistrer un paiement</h3>
+<label>Commande</label><select id="paiementCommande"></select>
+<label>Montant reçu</label><input id="paiementMontant" type="number" min="1">
+<label>Mode de paiement</label><select id="paiementMode"><option>Espèces</option><option>Mobile Money</option><option>Virement</option><option>Autre</option></select>
+<button class="btn" onclick="ajouterPaiement()">💵 Ajouter le paiement</button>
+</div>
+<div class="card"><h3>Historique des paiements</h3><div id="listePaiements"></div></div>
+</section>
+
+<section id="historique">
+<h2>📋 Toutes les commandes</h2>
+<input id="rechercheCommande" placeholder="Numéro, client, téléphone, habit..." oninput="afficherCommandes()">
+<div class="row">
+<div><label>Filtrer par statut</label><select id="filtreStatut" onchange="afficherCommandes()"><option value="">Tous les statuts</option><option>En cours</option><option>Coupe</option><option>Confection</option><option>Finition</option><option>Prêt</option><option>Livré</option><option>Annulé</option></select></div>
+<div><label>Afficher</label><select id="filtrePaiement" onchange="afficherCommandes()"><option value="">Toutes</option><option value="reste">Reste à payer</option><option value="retard">En retard</option></select></div>
+</div>
+<div class="row">
+<div><label>Depuis le</label><input type="date" id="dateDebut" onchange="afficherCommandes()"></div>
+<div><label>Jusqu'au</label><input type="date" id="dateFin" onchange="afficherCommandes()"></div>
+</div>
+<div id="listeCommandes"></div>
+</section>
+
+<section id="outils">
+<h2>⚙️ Outils et sauvegarde</h2>
+<div class="card">
+<h3>💾 Sauvegarde des données</h3>
+<p>Conserve tes clients, commandes, mesures et paiements dans une sauvegarde JSON.</p>
+<button class="btn" onclick="exporterSauvegarde()">⬇️ Exporter la sauvegarde</button>
+<label>Restaurer une sauvegarde JSON</label><input type="file" id="fichierImport" accept=".json,application/json">
+<button class="btn or" onclick="importerSauvegarde()">⬆️ Restaurer</button>
+</div>
+<div class="card">
+<h3>📱 Installation</h3>
+<p id="etatPWA">L'application peut être installée lorsqu'elle est hébergée sur une adresse HTTPS compatible.</p>
+<button class="btn" onclick="installerApplication()">📲 Installer COUTURE</button>
+</div>
+<div class="card">
+<h3>🖨️ Impression</h3>
+<p>Imprime les documents de l'application avec la fonction d'impression du navigateur.</p>
+<button class="btn" onclick="window.print()">🖨️ Imprimer la page actuelle</button>
+</div>
+<div class="card">
+<h3>⚠️ Effacer les données</h3>
+<p class="muted">Attention : cette action supprime les clients, commandes, mesures et paiements de cet appareil.</p>
+<button class="btn red" onclick="effacerDonnees()">Effacer toutes les données</button>
+</div>
+</section>
+
+<div id="printZone"></div>
+</main>
+<footer>ELAWS MESURE COUTURE — V13 · Données conservées sur cet appareil</footer>
+
+<script>
+"use strict";
+
+const HABITS=[
+"Pantalon","Chemise","Gilet","Jupe","Robe","Boubou","Veste","Costume",
+"Short","Tunique","Kaftan","Ensemble","Djellaba","Tenue traditionnelle","Autre"
+];
+
+const CHAMPS={
+"Pantalon":["taille","bassin","cuisse","longueurPantalon","basPantalon","fourche","genou","tourGenou","entrejambe","ceinture"],
+"Short":["taille","bassin","cuisse","longueurShort","basPantalon","fourche","entrejambe"],
+"Jupe":["taille","bassin","longueurJupe","tourHanches","tourCuisse","hauteurBassin","ceinture"],
+"Robe":["poitrine","taille","bassin","cou","epaule","carrureDos","carrureDevant","hauteurPoitrine","ecartPoitrine","longueurRobe","longueurDos","longueurDevant","manche","bras","poignet","emmanchure"],
+"Chemise":["poitrine","taille","bassin","cou","epaule","carrureDos","carrureDevant","longueurChemise","manche","bras","poignet","emmanchure"],
+"Gilet":["poitrine","taille","bassin","cou","epaule","carrureDos","carrureDevant","longueurGilet","emmanchure"],
+"Veste":["poitrine","taille","bassin","cou","epaule","carrureDos","carrureDevant","longueurVeste","manche","bras","poignet","emmanchure"],
+"Boubou":["poitrine","cou","epaule","carrureDos","carrureDevant","manche","bras","poignet","emmanchure","longueurBoubou","largeurBoubou"],
+"Tunique":["poitrine","taille","bassin","cou","epaule","manche","bras","poignet","longueurTunique"],
+"Kaftan":["poitrine","taille","bassin","cou","epaule","carrureDos","manche","bras","poignet","longueurKaftan"],
+"Costume":["poitrine","taille","bassin","cou","epaule","carrureDos","carrureDevant","longueurVeste","manche","bras","poignet","longueurPantalon","cuisse","basPantalon"],
+"Ensemble":["poitrine","taille","bassin","cou","epaule","manche","longueurHabit","longueurPantalon","cuisse"],
+"Djellaba":["poitrine","cou","epaule","carrureDos","manche","bras","poignet","longueurDjellaba","largeurDjellaba"],
+"Tenue traditionnelle":["poitrine","taille","bassin","cou","epaule","manche","bras","longueurHabit"],
+"Autre":["poitrine","taille","bassin","cou","epaule","longueurHabit","manche"]
+};
+
+const NOMS={
+taille:"Tour de taille",bassin:"Tour de bassin",cuisse:"Tour de cuisse",
+longueurPantalon:"Longueur pantalon",basPantalon:"Bas du pantalon",fourche:"Fourche",
+genou:"Hauteur genou",tourGenou:"Tour de genou",entrejambe:"Entrejambe",ceinture:"Ceinture",
+poitrine:"Tour de poitrine",cou:"Tour de cou",epaule:"Épaule",carrureDos:"Carrure dos",
+carrureDevant:"Carrure devant",hauteurPoitrine:"Hauteur poitrine",ecartPoitrine:"Écart poitrine",
+longueurRobe:"Longueur robe",longueurDos:"Longueur dos",longueurDevant:"Longueur devant",
+manche:"Longueur manche",bras:"Tour de bras",poignet:"Tour de poignet",emmanchure:"Emmanchure",
+longueurJupe:"Longueur jupe",tourHanches:"Tour des hanches",tourCuisse:"Tour de cuisse",
+hauteurBassin:"Hauteur bassin",longueurChemise:"Longueur chemise",longueurGilet:"Longueur gilet",
+longueurVeste:"Longueur veste",longueurBoubou:"Longueur boubou",largeurBoubou:"Largeur boubou",
+longueurTunique:"Longueur tunique",longueurKaftan:"Longueur kaftan",longueurHabit:"Longueur habit",
+longueurDjellaba:"Longueur djellaba"
+};
+
+let clients=[],commandes=[],articlesTemp=[],editionCommande=null,editionArticle=-1;
+let photoTemp="",deferredPrompt=null;
+
+const $=id=>document.getElementById(id);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const nombre=v=>Math.max(0,Number(v)||0);
+const argent=v=>nombre(v).toLocaleString("fr-FR",{maximumFractionDigits:2})+" FCFA";
+const echappe=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const dateISO=()=>new Date().toISOString().slice(0,10);
+
+function statutNormal(s){
+ const t=String(s||"En cours").toLowerCase();
+ if(t.includes("livr"))return "Livré";
+ if(t.includes("annul"))return "Annulé";
+ if(t.includes("prêt")||t.includes("pret")||t.includes("termin"))return "Prêt";
+ if(t.includes("finit"))return "Finition";
+ if(t.includes("confect"))return "Confection";
+ if(t.includes("coup"))return "Coupe";
+ return "En cours";
+}
+
+function creerNumero(){
+ const annee=new Date().getFullYear();
+ const numeros=commandes.map(c=>String(c.numeroCommande||"")).filter(n=>n.startsWith("CMD-"+annee+"-"));
+ const max=numeros.reduce((m,n)=>Math.max(m,parseInt(n.split("-").pop(),10)||0),0);
+ return "CMD-"+annee+"-"+String(max+1).padStart(4,"0");
+}
+
+function normaliserArticle(a={}){
+ return {
+ id:a.id||uid(),type:HABITS.includes(a.type)?a.type:"Pantalon",
+ description:a.description||"",tissu:a.tissu||"",couleur:a.couleur||"",
+ quantite:Math.max(1,Number(a.quantite)||1),prixUnitaire:nombre(a.prixUnitaire),
+ mesures:a.mesures||{},genre:a.genre||"Homme",tailleStandard:a.tailleStandard||"Sur mesure",
+ tissuLaize:Number(a.tissuLaize)||150,tissuMode:a.tissuMode||"auto",
+ tissuManuel:nombre(a.tissuManuel),prixTissuMetre:nombre(a.prixTissuMetre),
+ margeCouture:Number(a.margeCouture??1.5),margeOurlet:Number(a.margeOurlet??3),
+ notesCoupe:a.notesCoupe||"",mesuresPersonnalisees:Array.isArray(a.mesuresPersonnalisees)?a.mesuresPersonnalisees:[]
+ };
+}
+
+function normaliserCommande(c={}){
+ let articles=Array.isArray(c.articles)?c.articles:[];
+ if(!articles.length && (c.habit||c.mesures)){
+  articles=[{type:c.habit||"Pantalon",mesures:c.mesures?.habits?.[c.habit]||c.mesures?.general||{},prixUnitaire:Number(c.prix)||0,quantite:1}];
+ }
+ articles=articles.map(normaliserArticle);
+ const avance=nombre(c.avance);
+ const prix=Number(c.prix)||articles.reduce((s,a)=>s+a.prixUnitaire*a.quantite,0);
+ return {...c,id:c.id||uid(),numeroCommande:c.numeroCommande||creerNumero(),
+ clientId:c.clientId||"",nom:c.nom||"",telephone:c.telephone||"",
+ articles,prix,avance,reste:Math.max(0,prix-avance),
+ dateCommande:c.dateCommande||c.date||dateISO(),dateLivraison:c.dateLivraison||"",
+ statut:statutNormal(c.statut),notes:c.notes||c.notesGenerales||"",
+ notesConfection:c.notesConfection||"",paiements:Array.isArray(c.paiements)?c.paiements:[],
+ inclureTissuAuPrix:!!c.inclureTissuAuPrix
+ };
+}
+
+function chargerDonnees(){
+ try{clients=JSON.parse(localStorage.getItem("elaws_clients")||"[]")}catch{clients=[]}
+ try{commandes=JSON.parse(localStorage.getItem("elaws_commandes")||"[]").map(normaliserCommande)}catch{commandes=[]}
+ clients=clients.map(c=>({...c,id:c.id||uid(),mesures:c.mesures||{general:{},habits:{}},historiqueMesures:c.historiqueMesures||[]}));
+ commandes.forEach(c=>recalculer(c));
+ sauvegarder();
+}
+
+function sauvegarder(){
+ localStorage.setItem("elaws_clients",JSON.stringify(clients));
+ localStorage.setItem("elaws_commandes",JSON.stringify(commandes));
+ actualiserTout();
+}
+
+function ouvrir(id){
+ document.querySelectorAll("main section").forEach(s=>s.classList.remove("active"));
+ const cible=$(id);if(cible)cible.classList.add("active");
+ if(id==="clients")afficherClients();
+ if(id==="mesures")preparerMesures();
+ if(id==="historique")afficherCommandes();
+ if(id==="finances")afficherFinances();
+ if(id==="coupe")preparerCoupe();
+ if(id==="commande")remplirSelectsCommande();
+ window.scrollTo(0,0);
+}
+
+function remplirSelectsCommande(){
+ const options='<option value="">-- Choisir --</option>'+clients.map(c=>`<option value="${echappe(c.id)}">${echappe(c.nom)}${c.telephone?" — "+echappe(c.telephone):""}</option>`).join("");
+ if($("commandeClient"))$("commandeClient").innerHTML=options;
+ if($("mesureClient"))$("mesureClient").innerHTML=options;
+ const cs=commandes.map(c=>`<option value="${c.id}">${echappe(c.numeroCommande)} — ${echappe(c.nom)}</option>`).join("");
+ if($("coupeCommande"))$("coupeCommande").innerHTML=cs;
+ if($("paiementCommande"))$("paiementCommande").innerHTML=cs;
+ preparerSelectHabits();
+}
+
+function preparerSelectHabits(){
+ if($("mesureHabit"))$("mesureHabit").innerHTML=HABITS.map(h=>`<option>${echappe(h)}</option>`).join("");
+ if($("aType"))$("aType").innerHTML=HABITS.map(h=>`<option>${echappe(h)}</option>`).join("");
+}
+
+function nouveauClient(){
+ $("clientId").value="";$("clientNom").value="";$("clientTel").value="";
+ $("clientEmail").value="";$("clientAdresse").value="";$("clientNotes").value="";
+ $("clientPhoto").value="";photoTemp="";
+ $("titreClient").textContent="Ajouter un client";$("profilClient").innerHTML="";
+ ouvrir("clientForm");
+}
+
+function modifierClient(id){
+ const c=clients.find(x=>x.id===id);if(!c)return;
+ $("clientId").value=c.id;$("clientNom").value=c.nom||"";$("clientTel").value=c.telephone||"";
+ $("clientEmail").value=c.email||"";$("clientAdresse").value=c.adresse||"";
+ $("clientNotes").value=c.notes||"";photoTemp=c.photo||"";
+ $("clientPhoto").value="";$("titreClient").textContent="Modifier le client";
+ afficherProfilClient(c);ouvrir("clientForm");
+}
+
+$("clientPhoto").addEventListener("change",e=>{
+ const f=e.target.files?.[0];if(!f)return;
+ if(f.size>1500000){alert("Choisis une photo de moins de 1,5 Mo.");e.target.value="";return}
+ const r=new FileReader();r.onload=()=>photoTemp=r.result;r.readAsDataURL(f);
+});
+
+function enregistrerClient(){
+ const nom=$("clientNom").value.trim();if(!nom){alert("Entre le nom du client.");return}
+ const id=$("clientId").value||uid();
+ let c=clients.find(x=>x.id===id);
+ if(!c)c={id,dateCreation:dateISO(),mesures:{general:{},habits:{}},historiqueMesures:[]};
+ Object.assign(c,{nom,telephone:$("clientTel").value.trim(),email:$("clientEmail").value.trim(),
+ adresse:$("clientAdresse").value.trim(),notes:$("clientNotes").value.trim(),photo:photoTemp});
+ c.mesures=c.mesures||{general:{},habits:{}};
+ c.mesures.habits=c.mesures.habits||{};
+ c.historiqueMesures=c.historiqueMesures||[];
+ const i=clients.findIndex(x=>x.id===id);if(i>=0)clients[i]=c;else clients.push(c);
+ sauvegarder();remplirSelectsCommande();ouvrir("clients");
+}
+
+function afficherClients(){
+ const q=($("rechercheClient")?.value||"").toLowerCase();
+ const liste=clients.filter(c=>(c.nom+" "+c.telephone).toLowerCase().includes(q));
+ $("listeClients").innerHTML=liste.length?liste.map(c=>`
+ <div class="card">
+ <h3>${echappe(c.nom)}</h3>
+ <p>${echappe(c.telephone||"Pas de téléphone")} · ${echappe(c.email||"")}</p>
+ <p class="muted">${echappe(c.adresse||"Adresse non renseignée")}</p>
+ <button class="btn small" onclick="modifierClient('${c.id}')">✏️ Modifier</button>
+ <button class="btn small or" onclick="nouvelleCommandePour('${c.id}')">➕ Commande</button>
+ <button class="btn small gray" onclick="voirMesuresClient('${c.id}')">📐 Mesures</button>
+ <button class="btn small gray" onclick="voirCommandesClient('${c.id}')">📋 Historique</button>
+ </div>`).join(""):'<div class="empty">Aucun client trouvé.</div>';
+}
+
+function afficherProfilClient(c){
+ const liste=commandes.filter(o=>o.clientId===c.id);
+ $("profilClient").innerHTML=`<hr><h3>📋 Profil et historique</h3>
+ <p><b>Commandes :</b> ${liste.length}</p>
+ <p><b>Reste à payer :</b> ${argent(liste.reduce((s,o)=>s+o.reste,0))}</p>
+ ${c.photo?`<img src="${c.photo}" alt="Photo du client" style="max-width:130px;border-radius:10px">`:""}
+ <h3>Mesures enregistrées</h3>
+ ${Object.entries(c.mesures?.habits||{}).map(([h,m])=>`<p>${echappe(h)} : ${Object.entries(m||{}).map(([k,v])=>echappe(NOMS[k]||k)+" "+echappe(v)+" cm").join(", ")}</p>`).join("")||"<p class='muted'>Pas encore de mesures.</p>"}
+ <h3>Dernières modifications des mesures</h3>
+ ${(c.historiqueMesures||[]).slice(-5).reverse().map(h=>`<p>${echappe(h.date)} — ${echappe(h.habit)}</p>`).join("")||"<p class='muted'>Pas d'historique.</p>"}`;
+}
+
+function voirMesuresClient(id){ouvrir("mesures");$("mesureClient").value=id;chargerMesures()}
+function voirCommandesClient(id){ouvrir("historique");$("rechercheCommande").value=clients.find(c=>c.id===id)?.nom||"";afficherCommandes()}
+function nouvelleCommandePour(id){nouvelleCommande();$("commandeClient").value=id;selectionnerClientCommande()}
+
+function preparerMesures(){
+ remplirSelectsCommande();chargerMesures();
+}
+
+function chargerMesures(){
+ const id=$("mesureClient").value,h=$("mesureHabit").value,c=clients.find(x=>x.id===id);
+ const m=c?.mesures?.habits?.[h]||{};
+ $("champsMesures").innerHTML=(CHAMPS[h]||[]).map(k=>`
+ <label>${echappe(NOMS[k]||k)} (cm)</label>
+ <input type="number" step="0.1" data-mesure="${k}" value="${echappe(m[k]??"")}">`).join("");
+ $("historiqueMesures").innerHTML=(c?.historiqueMesures||[]).filter(x=>x.habit===h).slice(-10).reverse().map(x=>`
+ <div class="badge">${echappe(x.date)} · ${echappe(x.habit)}</div>`).join("")||"<p class='muted'>Aucun historique pour cet habit.</p>";
+}
+
+function enregistrerMesures(){
+ const c=clients.find(x=>x.id===$("mesureClient").value),h=$("mesureHabit").value;
+ if(!c){alert("Choisis un client.");return}
+ const m={};document.querySelectorAll("[data-mesure]").forEach(i=>{if(i.value!=="")m[i.dataset.mesure]=Number(i.value)});
+ c.mesures=c.mesures||{general:{},habits:{}};
+ c.mesures.habits=c.mesures.habits||{};
+ c.historiqueMesures=c.historiqueMesures||[];
+ c.mesures.habits[h]=m;
+ c.historiqueMesures.push({date:new Date().toLocaleString("fr-FR"),habit:h,mesures:{...m}});
+ sauvegarder();chargerMesures();alert("Mesures enregistrées.");
+}
+
+function nouvelleCommande(){
+ editionCommande=null;articlesTemp=[];editionArticle=-1;
+ $("commandeId").value="";$("titreCommande").textContent="📦 Nouvelle commande";
+ $("commandeNom").value="";$("commandeTel").value="";$("dateCommande").value=dateISO();
+ $("dateLivraison").value="";$("commandeStatut").value="En cours";
+ $("commandeNotes").value="";$("commandeNotesGenerales").value="";
+ $("commandeAvance").value="0";$("inclureTissu").value="non";
+ remplirSelectsCommande();afficherListeArticlesTemp();$("editeurArticle").style.display="none";
+ ouvrir("commande");
+}
+
+function selectionnerClientCommande(){
+ const c=clients.find(x=>x.id===$("commandeClient").value);if(!c)return;
+ $("commandeNom").value=c.nom;$("commandeTel").value=c.telephone||"";
+}
+
+function editerArticle(index){
+ editionArticle=index;
+ const a=index>=0?articlesTemp[index]:normaliserArticle({});
+ $("editeurArticle").style.display="block";
+ $("titreArticle").textContent=index>=0?"Modifier l'article":"Ajouter un article";
+ $("aType").value=a.type;$("aDescription").value=a.description;
+ $("aGenre").value=a.genre;$("aTaille").value=a.tailleStandard;
+ $("aQuantite").value=a.quantite;$("aPrix").value=a.prixUnitaire;
+ $("aTissu").value=a.tissu;$("aCouleur").value=a.couleur;
+ $("aLaize").value=a.tissuLaize;$("aPrixTissu").value=a.prixTissuMetre;
+ $("aModeTissu").value=a.tissuMode;$("aTissuManuel").value=a.tissuManuel;
+ $("aMarge").value=a.margeCouture;$("aOurlet").value=a.margeOurlet;
+ $("aNotesCoupe").value=a.notesCoupe;
+ afficherChampsArticle(a.mesures);
+ $("editeurArticle").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function afficherChampsArticle(mesures){
+ const a=mesures||{};
+ $("champsArticle").innerHTML=(CHAMPS[$("aType").value]||[]).map(k=>`
+ <label>${echappe(NOMS[k]||k)} (cm)</label>
+ <input type="number" step="0.1" data-artmesure="${k}" value="${echappe(a[k]??"")}">`).join("");
+}
+
+$("aType").addEventListener("change",()=>afficherChampsArticle({}));
+
+function lireArticleEdite(){
+ const mesures={};
+ document.querySelectorAll("[data-artmesure]").forEach(i=>{if(i.value!=="")mesures[i.dataset.artmesure]=Number(i.value)});
+ return normaliserArticle({
+ ...(editionArticle>=0?articlesTemp[editionArticle]:{}),
+ type:$("aType").value,description:$("aDescription").value,
+ genre:$("aGenre").value,tailleStandard:$("aTaille").value,
+ quantite:Math.max(1,Number($("aQuantite").value)||1),prixUnitaire:nombre($("aPrix").value),
+ tissu:$("aTissu").value,couleur:$("aCouleur").value,mesures,
+ tissuLaize:Number($("aLaize").value)||150,prixTissuMetre:nombre($("aPrixTissu").value),
+ tissuMode:$("aModeTissu").value,tissuManuel:nombre($("aTissuManuel").value),
+ margeCouture:Number($("aMarge").value)||0,margeOurlet:Number($("aOurlet").value)||0,
+ notesCoupe:$("aNotesCoupe").value
+ });
+}
+
+function sauverArticleTemp(){
+ const a=lireArticleEdite();
+ if(editionArticle>=0)articlesTemp[editionArticle]=a;else articlesTemp.push(a);
+ $("editeurArticle").style.display="none";afficherListeArticlesTemp();
+}
+
+function annulerEditionArticle(){$("editeurArticle").style.display="none"}
+
+function supprimerArticleTemp(i){
+ if(confirm("Supprimer cet article ?")){articlesTemp.splice(i,1);afficherListeArticlesTemp()}
+}
+
+function dupliquerArticleTemp(i){
+ const a=JSON.parse(JSON.stringify(articlesTemp[i]));a.id=uid();articlesTemp.push(a);afficherListeArticlesTemp();
+}
+
+function afficherListeArticlesTemp(){
+ $("listeArticlesTemp").innerHTML=articlesTemp.length?articlesTemp.map((a,i)=>`
+ <div class="article">
+ <h4>${echappe(a.type)} — ${echappe(a.description||"Sans description")}</h4>
+ <p>Quantité : ${a.quantite} · Prix unitaire : ${argent(a.prixUnitaire)}</p>
+ <p class="muted">${echappe(a.tissu||"Tissu non précisé")} · ${echappe(a.couleur||"Couleur non précisée")}</p>
+ <button class="btn small" onclick="editerArticle(${i})">✏️ Modifier</button>
+ <button class="btn small or" onclick="dupliquerArticleTemp(${i})">📑 Dupliquer</button>
+ <button class="btn small red" onclick="supprimerArticleTemp(${i})">🗑️ Supprimer</button>
+ </div>`).join(""):'<p class="empty">Aucun article ajouté.</p>';
+ const total=articlesTemp.reduce((s,a)=>s+a.prixUnitaire*a.quantite,0);
+ $("resumeCommande").innerHTML=`<p><b>Total des articles :</b> ${argent(total)}</p><p class="muted">Le total définitif est calculé à l'enregistrement.</p>`;
+}
+
+function calculerTissu(a){
+ const m=a.mesures||{};
+ const longueur=(m.longueurPantalon||m.longueurShort||m.longueurJupe||m.longueurRobe||m.longueurChemise||m.longueurGilet||m.longueurVeste||m.longueurBoubou||m.longueurTunique||m.longueurKaftan||m.longueurDjellaba||m.longueurHabit||100);
+ let base;
+ if(a.tissuMode==="manuel")base=nombre(a.tissuManuel);
+ else{
+  const t=a.type;
+  if(t==="Pantalon")base=2*nombre(m.longueurPantalon||100)/100+0.4;
+  else if(t==="Short")base=2*nombre(m.longueurShort||50)/100+0.3;
+  else if(t==="Jupe")base=2*nombre(m.longueurJupe||70)/100+0.3;
+  else if(t==="Chemise")base=2*nombre(m.longueurChemise||75)/100+1;
+  else if(t==="Robe")base=2*nombre(m.longueurRobe||120)/100+1;
+  else if(["Boubou","Kaftan","Djellaba"].includes(t))base=2*nombre(longueur)/100+1.2;
+  else if(t==="Veste")base=2*nombre(m.longueurVeste||75)/100+1;
+  else if(t==="Costume")base=2*nombre(m.longueurPantalon||100)/100+2*nombre(m.longueurVeste||75)/100+1.5;
+  else if(t==="Ensemble")base=2*nombre(m.longueurHabit||75)/100+2*nombre(m.longueurPantalon||100)/100+0.8;
+  else if(t==="Tunique")base=2*nombre(m.longueurTunique||85)/100+0.9;
+  else if(t==="Tenue traditionnelle")base=2*nombre(m.longueurHabit||120)/100+1.2;
+  else base=2*nombre(longueur)/100+1;
+  const laize=Math.max(1,Number(a.tissuLaize)||150);
+  const facteur=laize<150?150/laize:Math.max(0.85,150/laize);
+  base=base*facteur*1.05;
+ }
+ return {metres:base*a.quantite,cout:base*a.quantite*nombre(a.prixTissuMetre)};
+}
+
+function calculerTotalArticles(articles,inclure){
+ return articles.reduce((s,a)=>{
+  const tissu=calculerTissu(a);
+  return s+a.prixUnitaire*a.quantite+(inclure?tissu.cout:0);
+ },0);
+}
+
+function recalculer(c){
+ c.prix=calculerTotalArticles(c.articles||[],c.inclureTissuAuPrix);
+ c.avance=(c.paiements||[]).reduce((s,p)=>s+nombre(p.montant),0);
+ c.reste=Math.max(0,c.prix-c.avance);
+}
+
+function enregistrerCommande(){
+ if($("editeurArticle").style.display!=="none"){alert("Enregistre ou annule l'article ouvert avant de continuer.");return}
+ if(!articlesTemp.length){alert("Ajoute au moins un article.");return}
+ const client=clients.find(c=>c.id===$("commandeClient").value);
+ const nom=(client?.nom||$("commandeNom").value).trim();
+ if(!nom){alert("Choisis un client ou entre son nom.");return}
+ let c=editionCommande||{
+ id:uid(),numeroCommande:creerNumero(),paiements:[],avance:0
+ };
+ const ancienneAvance=(c.paiements||[]).reduce((s,p)=>s+nombre(p.montant),0);
+ Object.assign(c,{
+ clientId:client?.id||"",nom,telephone:client?.telephone||$("commandeTel").value.trim(),
+ articles:JSON.parse(JSON.stringify(articlesTemp)),
+ dateCommande:$("dateCommande").value||dateISO(),dateLivraison:$("dateLivraison").value,
+ statut:statutNormal($("commandeStatut").value),
+ notes:$("commandeNotesGenerales").value,
+ notesConfection:$("commandeNotes").value,
+ inclureTissuAuPrix:$("inclureTissu").value==="oui"
+ });
+ if(!c.paiements)c.paiements=[];
+ const avanceVoulue=nombre($("commandeAvance").value);
+ if(avanceVoulue>ancienneAvance)c.paiements.push({id:uid(),date:dateISO(),montant:avanceVoulue-ancienneAvance,mode:"Espèces",note:"Avance à l'enregistrement"});
+ recalculer(c);
+ const i=commandes.findIndex(x=>x.id===c.id);
+ if(i>=0)commandes[i]=c;else commandes.push(c);
+ editionCommande=null;sauvegarder();ouvrir("historique");
+ alert("Commande enregistrée : "+c.numeroCommande);
+}
+
+function modifierCommande(id){
+ const c=commandes.find(x=>x.id===id);if(!c)return;
+ editionCommande=c;articlesTemp=JSON.parse(JSON.stringify(c.articles||[]));
+ remplirSelectsCommande();
+ $("commandeId").value=c.id;$("titreCommande").textContent="✏️ Modifier "+c.numeroCommande;
+ $("commandeClient").value=c.clientId||"";$("commandeNom").value=c.nom;
+ $("commandeTel").value=c.telephone||"";$("dateCommande").value=c.dateCommande||dateISO();
+ $("dateLivraison").value=c.dateLivraison||"";$("commandeStatut").value=statutNormal(c.statut);
+ $("commandeNotes").value=c.notesConfection||"";$("commandeNotesGenerales").value=c.notes||"";
+ $("commandeAvance").value=c.avance||0;$("inclureTissu").value=c.inclureTissuAuPrix?"oui":"non";
+ $("editeurArticle").style.display="none";afficherListeArticlesTemp();ouvrir("commande");
+}
+
+function annulerCommande(){editionCommande=null;articlesTemp=[];ouvrir("historique")}
+
+function dupliquerCommande(id){
+ const source=commandes.find(c=>c.id===id);if(!source)return;
+ const c=JSON.parse(JSON.stringify(source));
+ c.id=uid();c.numeroCommande=creerNumero();c.dateCommande=dateISO();c.dateLivraison="";
+ c.statut="En cours";c.paiements=[];c.avance=0;c.reste=c.prix;
+ c.articles=(c.articles||[]).map(a=>({...a,id:uid()}));
+ c.notes="Copie de "+source.numeroCommande+(source.notes?" — "+source.notes:"");
+ commandes.push(c);sauvegarder();alert("Commande dupliquée : "+c.numeroCommande);
+}
+
+function supprimerCommande(id){
+ if(!confirm("Supprimer cette commande définitivement ?"))return;
+ commandes=commandes.filter(c=>c.id!==id);sauvegarder();
+}
+
+function imprimerRecuCommande(id){
+ const c=commandes.find(x=>x.id===id);if(!c)return;
+ const dernier=(c.paiements||[]).slice(-1)[0];
+ imprimerHTML(`<h1>✂️ ELAWS MESURE COUTURE</h1><h2>REÇU DE PAIEMENT</h2>
+ <p><b>Reçu le :</b> ${echappe(dernier?.date||dateISO())}</p>
+ <p><b>Commande :</b> ${echappe(c.numeroCommande)}</p><p><b>Client :</b> ${echappe(c.nom)}</p>
+ <p><b>Téléphone :</b> ${echappe(c.telephone||"—")}</p><hr>
+ <p><b>Montant reçu :</b> ${argent(dernier?.montant||0)}</p>
+ <p><b>Mode :</b> ${echappe(dernier?.mode||"—")}</p>
+ <p><b>Prix total :</b> ${argent(c.prix)}</p><p><b>Total payé :</b> ${argent(c.avance)}</p>
+ <p><b>Reste à payer :</b> ${argent(c.reste)}</p><hr>
+ <p>Signature du client : ____________________</p><p>Signature de l'atelier : ____________________</p>`);
+}
+
+function afficherCommandes(){
+ const q=($("rechercheCommande")?.value||"").toLowerCase();
+ const st=$("filtreStatut")?.value||"",fp=$("filtrePaiement")?.value||"";
+ const debut=$("dateDebut")?.value||"",fin=$("dateFin")?.value||"";
+ const liste=[...commandes].filter(c=>{
+  const match=(c.numeroCommande+" "+c.nom+" "+c.telephone+" "+(c.articles||[]).map(a=>a.type).join(" ")).toLowerCase().includes(q);
+  return match&&(!st||c.statut===st)&&(!fp||(fp==="reste"&&c.reste>0)||(fp==="retard"&&c.dateLivraison&&c.dateLivraison<dateISO()&&c.statut!=="Livré"&&c.statut!=="Annulé"))&&(!debut||c.dateCommande>=debut)&&(!fin||c.dateCommande<=fin);
+ }).sort((a,b)=>(b.dateCommande||"").localeCompare(a.dateCommande||""));
+ $("listeCommandes").innerHTML=liste.length?liste.map(c=>`
+ <div class="card">
+ <h3>${echappe(c.numeroCommande)} — ${echappe(c.nom)}</h3>
+ <span class="badge">${echappe(c.statut)}</span>
+ ${c.dateLivraison&&c.dateLivraison<dateISO()&&c.statut!=="Livré"&&c.statut!=="Annulé"?'<span class="badge red">En retard</span>':""}
+ <p>${(c.articles||[]).map(a=>echappe(a.type)+" × "+a.quantite).join(", ")}</p>
+ <p><b>Total :</b> ${argent(c.prix)} · <b>Payé :</b> ${argent(c.avance)} · <b>Reste :</b> ${argent(c.reste)}</p>
+ <p class="muted">Commande : ${echappe(c.dateCommande)} · Livraison : ${echappe(c.dateLivraison||"Non définie")}</p>
+ <button class="btn small" onclick="modifierCommande('${c.id}')">✏️ Modifier</button>
+ <button class="btn small or" onclick="dupliquerCommande('${c.id}')">📑 Dupliquer</button>
+ <button class="btn small gray" onclick="imprimerRecuCommande('${c.id}')">🧾 Reçu</button>
+ <button class="btn small gray" onclick="preparerCoupe('${c.id}')">✂️ Coupe</button>
+ <button class="btn small red" onclick="supprimerCommande('${c.id}')">🗑️ Supprimer</button>
+ </div>`).join(""):'<div class="empty">Aucune commande trouvée.</div>';
+}
+
+function ajouterPaiement(){
+ const c=commandes.find(x=>x.id===$("paiementCommande").value);
+ const montant=nombre($("paiementMontant").value);
+ if(!c){alert("Choisis une commande.");return}
+ if(!montant){alert("Entre un montant valide.");return}
+ if(montant>c.reste+0.001&&!confirm("Le paiement dépasse le reste dû. Continuer ?"))return;
+ c.paiements=c.paiements||[];
+ c.paiements.push({id:uid(),date:dateISO(),montant,mode:$("paiementMode").value});
+ recalculer(c);sauvegarder();$("paiementMontant").value="";
+ afficherFinances();alert("Paiement enregistré.");
+}
+
+function afficherFinances(){
+ const total=commandes.reduce((s,c)=>s+c.prix,0);
+ const encaisse=commandes.reduce((s,c)=>s+c.avance,0);
+ const reste=commandes.reduce((s,c)=>s+c.reste,0);
+ $("fTotal").textContent=argent(total);$("fEncaisse").textContent=argent(encaisse);
+ $("fReste").textContent=argent(reste);$("fImpayees").textContent=commandes.filter(c=>c.reste>0).length;
+ const paiements=[];
+ commandes.forEach(c=>(c.paiements||[]).forEach(p=>paiements.push({...p,commande:c})));
+ paiements.sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+ $("listePaiements").innerHTML=paiements.length?paiements.map(p=>`
+ <div class="card"><b>${echappe(p.commande.numeroCommande)} — ${echappe(p.commande.nom)}</b>
+ <p>${echappe(p.date)} · ${echappe(p.mode||"")}</p><p><b>${argent(p.montant)}</b></p>
+ <button class="btn small gray" onclick="imprimerRecuPaiement('${p.commande.id}','${p.id}')">🧾 Imprimer ce reçu</button></div>`).join(""):'<p class="empty">Aucun paiement enregistré.</p>';
+}
+
+function imprimerRecuPaiement(cid,pid){
+ const c=commandes.find(x=>x.id===cid);if(!c)return;
+ const p=(c.paiements||[]).find(x=>x.id===pid);if(!p)return;
+ imprimerHTML(`<h1>✂️ ELAWS MESURE COUTURE</h1><h2>REÇU DE PAIEMENT</h2>
+ <p><b>Date :</b> ${echappe(p.date)}</p><p><b>Commande :</b> ${echappe(c.numeroCommande)}</p>
+ <p><b>Client :</b> ${echappe(c.nom)}</p><hr><p><b>Montant reçu :</b> ${argent(p.montant)}</p>
+ <p><b>Mode :</b> ${echappe(p.mode||"")}</p><p><b>Total de la commande :</b> ${argent(c.prix)}</p>
+ <p><b>Total payé à ce jour :</b> ${argent(c.avance)}</p><p><b>Reste à payer :</b> ${argent(c.reste)}</p>
+ <p>Signature : ____________________</p>`);
+}
+
+function preparerCoupe(id){
+ remplirSelectsCommande();
+ if(id)$("coupeCommande").value=id;
+ mettreArticlesCoupe();
+ if(id)ouvrir("coupe");
+}
+
+function mettreArticlesCoupe(){
+ const c=commandes.find(x=>x.id===$("coupeCommande").value);
+ $("coupeArticle").innerHTML=(c?.articles||[]).map((a,i)=>`<option value="${i}">${echappe(a.type)} — ${echappe(a.description||"Article "+(i+1))}</option>`).join("");
+}
+$("coupeCommande").addEventListener("change",mettreArticlesCoupe);
+
+function genererFicheCoupe(){
+ const c=commandes.find(x=>x.id===$("coupeCommande").value);
+ const i=Number($("coupeArticle").value),a=c?.articles?.[i];
+ if(!c||!a){alert("Choisis une commande et un article.");return}
+ const tissu=calculerTissu(a);
+ const formules={
+ "Pantalon":["Taille ÷ 4","Bassin ÷ 4","Cuisse ÷ 2","Bas du pantalon ÷ 2","Fourche ≈ bassin ÷ 4 + 2","Entrejambe ≈ longueur − fourche"],
+ "Short":["Taille ÷ 4","Bassin ÷ 4","Cuisse ÷ 2","Fourche ≈ bassin ÷ 4 + 2"],
+ "Jupe":["Taille ÷ 4","Bassin ÷ 4","Tour de cuisse ÷ 2"],
+ "Robe":["Poitrine ÷ 4","Taille ÷ 4","Bassin ÷ 4","Cou ÷ 2","Épaule ÷ 2"],
+ "Chemise":["Poitrine ÷ 4","Cou ÷ 2","Épaule ÷ 2"],
+ "Gilet":["Poitrine ÷ 4","Taille ÷ 4","Bassin ÷ 4","Épaule ÷ 2"],
+ "Veste":["Poitrine ÷ 4","Taille ÷ 4","Bassin ÷ 4","Cou ÷ 2","Épaule ÷ 2"],
+ "Costume":["Mesures veste : poitrine ÷ 4, taille ÷ 4, bassin ÷ 4","Pantalon : taille ÷ 4, bassin ÷ 4, cuisse ÷ 2"],
+ "Boubou":["Poitrine ÷ 4","Cou ÷ 2","Épaule ÷ 2","Bras ÷ 2"],
+ "Tunique":["Poitrine ÷ 4","Bassin ÷ 4","Épaule ÷ 2"],
+ "Kaftan":["Poitrine ÷ 4","Taille ÷ 4","Bassin ÷ 4","Épaule ÷ 2"],
+ "Djellaba":["Poitrine ÷ 4","Cou ÷ 2","Épaule ÷ 2","Bras ÷ 2"],
+ "Ensemble":["Poitrine ÷ 4","Épaule ÷ 2","Taille ÷ 4","Bassin ÷ 4"],
+ "Tenue traditionnelle":["Poitrine ÷ 4","Taille ÷ 4","Bassin ÷ 4"],
+ "Autre":["Utiliser les mesures renseignées"]
+ };
+ const mesures=Object.entries(a.mesures||{}).map(([k,v])=>`<tr><td>${echappe(NOMS[k]||k)}</td><td>${echappe(v)} cm</td></tr>`).join("");
+ const html=`<h1>✂️ FICHE DE COUPE</h1><h2>${echappe(c.numeroCommande)}</h2>
+ <p><b>Client :</b> ${echappe(c.nom)} · <b>Téléphone :</b> ${echappe(c.telephone||"—")}</p>
+ <p><b>Habit :</b> ${echappe(a.type)} · <b>Modèle :</b> ${echappe(a.description||"—")}</p>
+ <p><b>Genre :</b> ${echappe(a.genre)} · <b>Taille :</b> ${echappe(a.tailleStandard)} · <b>Quantité :</b> ${a.quantite}</p>
+ <p><b>Tissu :</b> ${echappe(a.tissu||"—")} · <b>Couleur :</b> ${echappe(a.couleur||"—")}</p>
+ <h3>Mesures</h3><table border="1" cellpadding="6" cellspacing="0" width="100%"><tr><th>Mesure</th><th>Valeur</th></tr>${mesures}</table>
+ <h3>Calculs de coupe à vérifier</h3><ul>${(formules[a.type]||formules.Autre).map(x=>`<li>${echappe(x)}</li>`).join("")}</ul>
+ <p><b>Marge couture :</b> ${a.margeCouture} cm · <b>Marge ourlet :</b> ${a.margeOurlet} cm</p>
+ <p><b>Largeur du tissu :</b> ${a.tissuLaize} cm</p>
+ <p><b>Tissu estimé :</b> ${tissu.metres.toFixed(2)} m pour ${a.quantite} pièce(s)</p>
+ <p><b>Coût estimé du tissu :</b> ${argent(tissu.cout)}</p>
+ <p><b>Notes :</b> ${echappe(a.notesCoupe||"—")}</p>
+ <hr><p class="muted">Estimation indicative : vérifier le placement réel du patron, le sens du tissu, les motifs et les marges avant la coupe.</p>`;
+ $("ficheCoupe").innerHTML=`<div class="card">${html}<button class="btn no-print" onclick="imprimerHTML(document.getElementById('ficheCoupe').querySelector('.card').innerHTML)">🖨️ Imprimer la fiche</button></div>`;
+}
+
+function imprimerHTML(html){
+ $("printZone").innerHTML=html;
+ document.body.classList.add("print-mode");
+ window.print();
+ setTimeout(()=>document.body.classList.remove("print-mode"),700);
+}
+
+function actualiserTout(){
+ if(!$("sClients"))return;
+ $("sClients").textContent=clients.length;
+ $("sCommandes").textContent=commandes.length;
+ $("sEncaisse").textContent=argent(commandes.reduce((s,c)=>s+c.avance,0));
+ $("sReste").textContent=argent(commandes.reduce((s,c)=>s+c.reste,0));
+ const alertes=commandes.filter(c=>c.dateLivraison&&c.statut!=="Livré"&&c.statut!=="Annulé")
+ .sort((a,b)=>a.dateLivraison.localeCompare(b.dateLivraison));
+ $("alertes").innerHTML=alertes.length?alertes.slice(0,8).map(c=>`
+ <p>${c.dateLivraison<dateISO()?"🔴 En retard":"📅"} <b>${echappe(c.nom)}</b> — ${echappe(c.numeroCommande)} — ${echappe(c.dateLivraison)}</p>`).join(""):'<p class="muted">Aucune livraison en attente.</p>';
+ const derniers=[...commandes].sort((a,b)=>(b.dateCommande||"").localeCompare(a.dateCommande||"")).slice(0,5);
+ $("dernieresCommandes").innerHTML=derniers.length?derniers.map(c=>`
+ <p><b>${echappe(c.numeroCommande)}</b> — ${echappe(c.nom)} — ${argent(c.reste)} restant</p>`).join(""):'<p class="muted">Aucune commande pour le moment.</p>';
+ if($("listeCommandes"))afficherCommandes();
+ if($("listeClients"))afficherClients();
+ if($("listePaiements"))afficherFinances();
+ remplirSelectsCommande();
+}
+
+function exporterSauvegarde(){
+ const data={application:"ELAWS MESURE COUTURE",version:13,dateExport:new Date().toISOString(),clients,commandes};
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+ const url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download="elaws-couture-sauvegarde-"+dateISO()+".json";a.click();
+ URL.revokeObjectURL(url);
+}
+
+function importerSauvegarde(){
+ const f=$("fichierImport").files?.[0];if(!f){alert("Choisis un fichier JSON.");return}
+ const r=new FileReader();
+ r.onload=()=>{
+  try{
+   const d=JSON.parse(r.result);
+   if(!Array.isArray(d.clients)||!Array.isArray(d.commandes))throw Error("format");
+   if(!confirm("Remplacer les données actuelles par la sauvegarde sélectionnée ?"))return;
+   clients=d.clients;commandes=d.commandes.map(normaliserCommande);
+   sauvegarder();alert("Sauvegarde restaurée.");ouvrir("accueil");
+  }catch{alert("Fichier invalide ou incompatible.")}
+ };
+ r.readAsText(f);
+}
+
+function effacerDonnees(){
+ if(!confirm("Attention : supprimer toutes les données de couture de cet appareil ?"))return;
+ if(!confirm("Dernière confirmation : cette action est irréversible sans sauvegarde."))return;
+ clients=[];commandes=[];localStorage.removeItem("elaws_clients");localStorage.removeItem("elaws_commandes");
+ sauvegarder();ouvrir("accueil");
+}
+
+window.addEventListener("beforeinstallprompt",e=>{
+ e.preventDefault();deferredPrompt=e;
+ $("installBtn").style.display="inline-block";
+ $("installStatus").textContent="Installation disponible sur ce téléphone.";
+ $("etatPWA").textContent="L'installation est disponible.";
+});
+
+window.addEventListener("appinstalled",()=>{
+ deferredPrompt=null;$("installStatus").textContent="COUTURE est installée sur ce téléphone.";
+ $("installBtn").textContent="✅ Application installée";
+});
+
+async function installerApplication(){
+ if(deferredPrompt){
+  deferredPrompt.prompt();
+  const result=await deferredPrompt.userChoice;
+  if(result.outcome==="accepted")$("installStatus").textContent="Installation acceptée.";
+  deferredPrompt=null;
+ }else{
+  alert("Pour installer COUTURE : ouvre cette application depuis Chrome avec son adresse HTTPS, puis touche le menu ⋮ et choisis « Installer l'application » ou « Ajouter à l'écran d'accueil ». Si tu ouvres seulement index.html depuis le téléphone, l'installation complète peut ne pas être disponible.");
+ }
+}
+
+function initialiserPWA(){
+ const autonome=window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone;
+ if(autonome){
+  $("installStatus").textContent="COUTURE est ouverte comme une application.";
+  $("installBtn").textContent="✅ COUTURE installée";
+ }
+ if("serviceWorker" in navigator && /^https?:$/.test(location.protocol)){
+  navigator.serviceWorker.register("./sw.js").then(()=>{
+   $("etatPWA").textContent="Service hors connexion activé après le premier chargement.";
+  }).catch(()=>{$("etatPWA").textContent="Le mode hors connexion n'a pas encore pu être activé.";});
+ }
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+ preparerSelectHabits();
+ chargerDonnees();
+ remplirSelectsCommande();
+ $("dateCommande").value=dateISO();
+ $("rechercheClient").value="";
+ $("filtreStatut").value="";
+ $("filtrePaiement").value="";
+ $("aType").value="Pantalon";
+ afficherClients();
+ afficherCommandes();
+ afficherFinances();
+ initialiserPWA();
+ ouvrir("accueil");
+});
+</script>
+</body>
+</html>
