@@ -1,0 +1,20 @@
+
+{
+  "name": "ELAWS MESURE COUTURE",
+  "short_name": "ELAWS COUTURE",
+  "description": "Application de mesures et de calculs de couture",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#14233d",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
