@@ -1,0 +1,11 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="90" fill="#14233d"/>
+  <g fill="none" stroke="#ffffff" stroke-width="22" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M130 340 V190 Q130 140 185 140 H285 Q335 140 335 190 V245 H270 V205 H195 V340"/>
+    <path d="M270 245 H385 L350 280 H270 Z"/>
+  </g>
+  <circle cx="310" cy="175" r="20" fill="#d9a441"/>
+  <path d="M100 350 H412 V375 H100 Z" fill="#d9a441"/>
+  <text x="256" y="425" font-family="Arial,sans-serif" font-size="54" font-weight="bold" text-anchor="middle" fill="#ffffff">ELAWS</text>
+</svg>
